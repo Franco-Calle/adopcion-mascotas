@@ -127,7 +127,7 @@
                                 class="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition font-semibold">
                             Enviar solicitud de adopción
                         </button>
-                        <a href="{{ route('galeria.show', $mascota) }}" 
+                        <a href="{{ route('galeria.index', $mascota) }}" 
                            class="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition text-center">
                             Cancelar
                         </a>

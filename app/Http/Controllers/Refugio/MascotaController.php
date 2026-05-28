@@ -101,6 +101,21 @@ class MascotaController extends Controller
             ->with('success', 'Mascota actualizada correctamente');
     }
 
+    public function show(Mascota $mascota)
+{
+    // Verificar que la mascota pertenezca al refugio logueado
+    if ($mascota->refugio_id !== auth()->id()) {
+        abort(403, 'No tienes permiso para ver esta mascota');
+    }
+    
+    // Cargar las relaciones necesarias
+    $mascota->load(['fotos', 'postulaciones' => function($query) {
+        $query->latest();
+    }]);
+    
+    return view('refugio.mascotas.show', compact('mascota'));
+}
+
     public function destroy(Mascota $mascota)
     {
         $mascota->delete(); // Las fotos se eliminan en cascada

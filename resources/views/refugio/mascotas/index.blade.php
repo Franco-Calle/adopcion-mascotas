@@ -44,6 +44,9 @@
                     <div class="flex gap-2">
                         <a href="{{ route('refugio.mascotas.edit', $mascota) }}" 
                            class="text-blue-500 hover:text-blue-700">Editar</a>
+
+                           <a href="{{ route('refugio.mascotas.show', $mascota) }}" 
+                           class="text-blue-500 hover:text-blue-700">Ver detalles</a>
                         
                         <form action="{{ route('refugio.mascotas.destroy', $mascota) }}" 
                               method="POST" 
