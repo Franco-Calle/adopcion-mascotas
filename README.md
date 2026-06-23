@@ -1,60 +1,166 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Adopción de Mascotas
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Plataforma web para gestionar la adopción de animales entre refugios y adoptantes, construida con Laravel + Tailwind CSS.
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Backend:** Laravel (PHP), MariaDB
+- **Frontend:** Blade + Tailwind CSS + Vite
+- **Imágenes:** Cloudinary
+- **Auth:** Laravel Breeze
+- **Docker:** MariaDB + App (Laravel) + Vite
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Roles
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+El sistema tiene tres roles de usuario (`role` en tabla `users`):
 
-## Learning Laravel
+| Rol | Acceso |
+|---|---|
+| `admin` | Panel de administración — gestiona refugios |
+| `refugio` | Panel del refugio — gestiona mascotas y postulaciones |
+| `usuario` | Panel del adoptante — navega galería y envía postulaciones |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+El middleware `CheckRole` (`app/Http/Middleware/CheckRole.php`) controla el acceso. La ruta `/dashboard` redirige según el rol.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Modelos principales
 
-## Laravel Sponsors
+- **`User`** — usuarios regulares y cuentas de refugio. Los refugios tienen campos extra (`telefono`, etc.) y poseen registros `Mascota` vía `refugio_id`.
+- **`Mascota`** — aviso de mascota en adopción perteneciente a un refugio. Tiene muchas `FotoMascota` y `Postulacion`.
+- **`FotoMascota`** — URLs de Cloudinary para fotos de la mascota, ordenadas por columna `orden`.
+- **`Postulacion`** — solicitud de adopción de un `usuario` para una `Mascota`. El refugio gestiona el estado e incluye `comentario_admin`.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Puesta en marcha
 
-### Premium Partners
+### Con Docker (recomendado)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+#### 1. Copiar y configurar el `.env`
 
-## Contributing
+```bash
+cp .env.example .env
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Editar `.env` y ajustar la conexión a la base de datos (debe coincidir con `docker-compose.yml`) y las credenciales de Cloudinary:
 
-## Code of Conduct
+```env
+# Base de datos (valores del docker-compose.yml)
+DB_CONNECTION=mysql
+DB_HOST=db
+DB_PORT=3306
+DB_DATABASE=db_adopcion
+DB_USERNAME=franco
+DB_PASSWORD=password
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=tu_cloud_name
+CLOUDINARY_API_KEY=tu_api_key
+CLOUDINARY_API_SECRET=tu_api_secret
+```
 
-## Security Vulnerabilities
+#### 2. Levantar los contenedores
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+docker compose up -d
+```
 
-## License
+Inicia tres servicios:
+- `db` — MariaDB 10.11 en el puerto 3306
+- `app` — Laravel (PHP 8.2) en el puerto 8000
+- `vite` — Node 20 + Vite en el puerto 5173
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+#### 3. Instalar dependencias PHP
 
+```bash
+docker exec laravel_adopcion_app composer install
+```
+
+#### 4. Generar la clave de la aplicación
+
+```bash
+docker exec laravel_adopcion_app php artisan key:generate
+```
+
+#### 5. Instalar dependencias de Node y compilar assets
+
+El contenedor `vite` ya ejecuta `npm run dev` automáticamente, pero si `node_modules` no existe todavía hay que instalarlos primero:
+
+```bash
+docker exec vite_adopcion_assets npm install
+```
+
+#### 6. Migrar la base de datos
+
+```bash
+docker exec laravel_adopcion_app php artisan migrate
+```
+
+#### 7. Poblar con datos de prueba (seeders)
+
+```bash
+docker exec laravel_adopcion_app php artisan db:seed
+```
+
+O bien, importar el dump SQL completo para tener datos reales:
+
+```bash
+docker exec -i db_adopcion_container mariadb -u franco -ppassword db_adopcion < db_adopcion.sql
+```
+
+#### Resumen (primera vez)
+
+```bash
+cp .env.example .env
+# editar .env con las variables de DB y Cloudinary
+docker compose up -d
+docker exec laravel_adopcion_app composer install
+docker exec laravel_adopcion_app php artisan key:generate
+docker exec vite_adopcion_assets npm install
+docker exec laravel_adopcion_app php artisan migrate
+docker exec laravel_adopcion_app php artisan db:seed
+```
+
+La app queda disponible en `http://localhost:8000`.
+
+---
+
+### Sin Docker
+
+```bash
+composer run setup      # instala deps, copia .env, genera key, migra y compila assets
+composer run dev        # servidor Laravel + queue + pail logger + Vite en paralelo
+```
+
+## Comandos útiles
+
+```bash
+# Desarrollo
+php artisan serve           # servidor Laravel (puerto 8000)
+npm run dev                 # Vite watcher
+
+# Base de datos
+php artisan migrate
+php artisan db:seed
+php artisan tinker
+
+# Tests
+composer run test                              # limpia cache y corre PHPUnit
+php artisan test --filter TestClassName        # clase específica
+
+# Estilo de código
+./vendor/bin/pint                              # Laravel Pint (PHP CS Fixer)
+```
+
+## Estructura de controladores
+
+```
+app/Http/Controllers/
+├── Admin/      # panel admin (gestión de refugios, soft deletes)
+├── Refugio/    # panel refugio (mascotas y postulaciones)
+├── Usuario/    # panel adoptante (galería y postulaciones)
+└── Auth/       # autenticación (Breeze)
+```
+
+## Notas
+
+- Las fotos de mascotas se suben vía `UploadTrait` (`app/Traits/UploadTrait.php`) directamente a Cloudinary.
+- El detalle de mascota usa un modal que consume `/api/mascota/{mascota}` como JSON.
+- Las cuentas de refugio soportan soft deletes — ver ruta `admin/refugios/trashed` y la acción `restore`.
