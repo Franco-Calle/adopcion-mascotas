@@ -62,45 +62,29 @@ CLOUDINARY_API_SECRET=tu_api_secret
 docker compose up -d
 ```
 
-Inicia tres servicios:
-- `db` — MariaDB 10.11 en el puerto 3306
-- `app` — Laravel (PHP 8.2) en el puerto 8000
-- `vite` — Node 20 + Vite en el puerto 5173
+Inicia tres servicios y ejecuta automáticamente:
+- `db` — MariaDB 10.11 en el puerto 3306 (con healthcheck)
+- `app` — `composer install` → `php artisan key:generate` → servidor Laravel en el puerto 8000
+- `vite` — `npm install` → Vite dev server en el puerto 5173
 
-#### 3. Instalar dependencias PHP
+> El contenedor `app` espera a que la base de datos esté lista antes de arrancar gracias al healthcheck. `composer install` y `npm install` solo tardan en la primera ejecución; en las siguientes son instantáneos porque los volúmenes persisten.
 
-```bash
-docker compose exec app composer install
-```
+#### 3. Migrar la base de datos
 
-#### 4. Generar la clave de la aplicación
-
-```bash
-docker compose exec app artisan key:generate
-```
-
-#### 5. Instalar dependencias de Node y compilar assets
-
-El contenedor `vite` ya ejecuta `npm run dev` automáticamente, pero si `node_modules` no existe todavía hay que instalarlos primero:
-
-```bash
-docker compose exec vite npm install
-```
-
-#### 6. Migrar la base de datos
+Una vez que los contenedores estén corriendo:
 
 ```bash
 docker compose exec app php artisan migrate
 ```
 
-#### 7. Poblar con datos de prueba (seeders)
+#### 4. Poblar con datos (elegir una opción)
 
+**Opción A — Seeders** (datos de prueba generados):
 ```bash
-docker compose exec app php artisan migrate --seed
+docker compose exec app php artisan db:seed
 ```
 
-O bien, importar el dump SQL completo para tener datos reales:
-
+**Opción B — Dump SQL** (datos reales del proyecto):
 ```bash
 docker exec -i db_adopcion_container mariadb -u franco -ppassword db_adopcion < db_adopcion.sql
 ```
@@ -111,11 +95,9 @@ docker exec -i db_adopcion_container mariadb -u franco -ppassword db_adopcion < 
 cp .env.example .env
 # editar .env con las variables de DB y Cloudinary
 docker compose up -d
-docker compose exec app composer install
-docker compose exec php artisan key:generate
-docker compose exec vite npm install
-docker compose exec app artisan migrate
-docker compose exec app artisan db:seed
+# esperar ~30 segundos a que composer install y npm install terminen
+docker compose exec app php artisan migrate
+docker compose exec app php artisan db:seed
 ```
 
 La app queda disponible en `http://localhost:8000`.
