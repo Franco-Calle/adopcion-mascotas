@@ -70,13 +70,13 @@ Inicia tres servicios:
 #### 3. Instalar dependencias PHP
 
 ```bash
-docker compose exec composer install
+docker compose exec app composer install
 ```
 
 #### 4. Generar la clave de la aplicación
 
 ```bash
-docker compose exec php artisan key:generate
+docker compose exec app artisan key:generate
 ```
 
 #### 5. Instalar dependencias de Node y compilar assets
@@ -84,19 +84,19 @@ docker compose exec php artisan key:generate
 El contenedor `vite` ya ejecuta `npm run dev` automáticamente, pero si `node_modules` no existe todavía hay que instalarlos primero:
 
 ```bash
-docker compose run --rm vite npm install
+docker compose exec vite npm install
 ```
 
 #### 6. Migrar la base de datos
 
 ```bash
-docker compose exec app php artisan migrate --seed
+docker compose exec app php artisan migrate
 ```
 
 #### 7. Poblar con datos de prueba (seeders)
 
 ```bash
-docker compose exec php artisan migrate 
+docker compose exec app php artisan migrate --seed
 ```
 
 O bien, importar el dump SQL completo para tener datos reales:
@@ -111,11 +111,11 @@ docker exec -i db_adopcion_container mariadb -u franco -ppassword db_adopcion < 
 cp .env.example .env
 # editar .env con las variables de DB y Cloudinary
 docker compose up -d
-docker compose exec composer install
+docker compose exec app composer install
 docker compose exec php artisan key:generate
-docker compose run --rm vite npm install
-docker compose exec php artisan migrate
-docker compose exec php artisan db:seed
+docker compose exec vite npm install
+docker compose exec app artisan migrate
+docker compose exec app artisan db:seed
 ```
 
 La app queda disponible en `http://localhost:8000`.
