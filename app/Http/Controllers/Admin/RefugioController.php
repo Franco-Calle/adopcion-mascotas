@@ -21,7 +21,7 @@ class RefugioController extends Controller
             ->withCount(['mascotas', 'postulaciones'])
             ->latest()
             ->paginate(15);
-        
+
         return view('admin.refugios.index', compact('refugios'));
     }
 
@@ -45,7 +45,6 @@ class RefugioController extends Controller
             'telefono' => 'nullable|string|max:20',
             'direccion' => 'nullable|string|max:500',
             'descripcion' => 'nullable|string|max:1000',
-            'logo_url' => 'nullable|url|max:255',
         ]);
 
         $refugio = User::create([
@@ -56,7 +55,6 @@ class RefugioController extends Controller
             'telefono' => $request->telefono,
             'direccion' => $request->direccion,
             'descripcion' => $request->descripcion,
-            'logo_url' => $request->logo_url,
         ]);
 
         return redirect()->route('admin.refugios.index')
@@ -84,14 +82,14 @@ class RefugioController extends Controller
         $totalPostulaciones = Postulacion::whereHas('mascota', function($q) use ($refugio) {
             $q->where('refugio_id', $refugio->id);
         })->count();
-        
+
         $postulacionesPendientes = Postulacion::whereHas('mascota', function($q) use ($refugio) {
             $q->where('refugio_id', $refugio->id);
         })->where('estado', 'pendiente')->count();
 
         return view('admin.refugios.show', compact(
-            'refugio', 
-            'totalMascotas', 
+            'refugio',
+            'totalMascotas',
             'mascotasDisponibles',
             'mascotasAdoptadas',
             'totalPostulaciones',
@@ -107,7 +105,7 @@ class RefugioController extends Controller
         if ($refugio->role !== 'refugio') {
             abort(404);
         }
-        
+
         return view('admin.refugios.edit', compact('refugio'));
     }
 
@@ -128,7 +126,6 @@ class RefugioController extends Controller
             'telefono' => 'nullable|string|max:20',
             'direccion' => 'nullable|string|max:500',
             'descripcion' => 'nullable|string|max:1000',
-            'logo_url' => 'nullable|url|max:255',
         ]);
 
         // Si se proporciona nueva contraseña
@@ -145,7 +142,6 @@ class RefugioController extends Controller
             'telefono' => $request->telefono,
             'direccion' => $request->direccion,
             'descripcion' => $request->descripcion,
-            'logo_url' => $request->logo_url,
         ]);
 
         return redirect()->route('admin.refugios.show', $refugio)
@@ -175,13 +171,13 @@ class RefugioController extends Controller
     public function restore($id)
     {
         $refugio = User::withTrashed()->findOrFail($id);
-        
+
         if ($refugio->role !== 'refugio') {
             abort(404);
         }
-        
+
         $refugio->restore();
-        
+
         return redirect()->route('admin.refugios.index')
             ->with('success', 'Refugio restaurado correctamente');
     }
@@ -195,7 +191,7 @@ class RefugioController extends Controller
             ->where('role', 'refugio')
             ->latest()
             ->paginate(15);
-        
+
         return view('admin.refugios.trashed', compact('refugios'));
     }
 }

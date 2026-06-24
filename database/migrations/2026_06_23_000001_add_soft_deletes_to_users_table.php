@@ -6,26 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
-            $table->string('telefono')->nullable()->after('email');
-            $table->string('direccion')->nullable()->after('telefono');
-            $table->text('descripcion')->nullable()->after('direccion');
+            $table->softDeletes();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropSoftDeletes();
         });
     }
 };

@@ -149,16 +149,6 @@ php artisan test --filter TestClassName        # clase específica
 ./vendor/bin/pint                              # Laravel Pint (PHP CS Fixer)
 ```
 
-## Estructura de controladores
-
-```
-app/Http/Controllers/
-├── Admin/      # panel admin (gestión de refugios, soft deletes)
-├── Refugio/    # panel refugio (mascotas y postulaciones)
-├── Usuario/    # panel adoptante (galería y postulaciones)
-└── Auth/       # autenticación (Breeze)
-```
-
 ## Notas
 
 - Las fotos de mascotas se suben vía `UploadTrait` (`app/Traits/UploadTrait.php`) directamente a Cloudinary.
