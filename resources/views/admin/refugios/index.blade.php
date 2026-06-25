@@ -8,7 +8,7 @@
             <h1 class="text-3xl font-bold text-gray-800">🏠 Gestión de Refugios</h1>
             <p class="text-gray-600 mt-2">Administra los refugios registrados en la plataforma</p>
         </div>
-        <a href="{{ route('admin.refugios.create') }}" 
+        <a href="{{ route('admin.refugios.create') }}"
            class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg transition flex items-center gap-2 shadow-md">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -23,13 +23,6 @@
             {{ session('success') }}
         </div>
     @endif
-
-    <!-- Enlace a refugios eliminados -->
-    <div class="mb-4 text-right">
-        <a href="{{ route('admin.refugios.trashed') }}" class="text-gray-500 hover:text-gray-700 text-sm">
-            🗑️ Ver refugios eliminados
-        </a>
-    </div>
 
     <!-- Tabla de Refugios -->
     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -77,7 +70,7 @@
                             {{ $refugio->created_at->format('d/m/Y') }}
                         </td>
                         <td class="px-6 py-4 text-right text-sm font-medium space-x-2">
-                            <a href="{{ route('admin.refugios.show', $refugio) }}" 
+                            <a href="{{ route('admin.refugios.show', $refugio) }}"
                                class="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -85,15 +78,15 @@
                                 </svg>
                                 Ver
                             </a>
-                            <a href="{{ route('admin.refugios.edit', $refugio) }}" 
+                            <a href="{{ route('admin.refugios.edit', $refugio) }}"
                                class="text-yellow-600 hover:text-yellow-900 inline-flex items-center gap-1">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                 </svg>
                                 Editar
                             </a>
-                            <form action="{{ route('admin.refugios.destroy', $refugio) }}" 
-                                  method="POST" 
+                            <form action="{{ route('admin.refugios.destroy', $refugio) }}"
+                                  method="POST"
                                   class="inline-block"
                                   onsubmit="return confirm('¿Eliminar este refugio? Se eliminarán todas sus mascotas.')">
                                 @csrf
