@@ -5,7 +5,7 @@
     <!-- Encabezado -->
     <div class="text-center mb-12">
         <h1 class="text-4xl font-bold text-gray-800 mb-4">🐾 Encuentra tu Mejor Amigo</h1>
-        <p class="text-xl text-gray-600">Adopta, no compres. Dale una segunda oportunidad a estos peludos</p>
+        <p class="text-xl text-gray-600">Adopta, no compres. Dale una segunda oportunidad a estos peluditos</p>
     </div>
 
     <!-- Filtros -->
@@ -27,9 +27,9 @@
                 <label class="block text-gray-700 mb-2">Tamaño</label>
                 <select name="tamaño" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500">
                     <option value="">Todos</option>
-                    <option value="Pequeño" {{ request('tamaño') == 'Pequeño' ? 'selected' : '' }}>Pequeño (hasta 5kg)</option>
-                    <option value="Mediano" {{ request('tamaño') == 'Mediano' ? 'selected' : '' }}>Mediano (5-15kg)</option>
-                    <option value="Grande" {{ request('tamaño') == 'Grande' ? 'selected' : '' }}>Grande (15+kg)</option>
+                    <option value="Pequeño" {{ request('tamaño') == 'Pequeño' ? 'selected' : '' }}>Pequeño</option>
+                    <option value="Mediano" {{ request('tamaño') == 'Mediano' ? 'selected' : '' }}>Mediano</option>
+                    <option value="Grande" {{ request('tamaño') == 'Grande' ? 'selected' : '' }}>Grande</option>
                 </select>
             </div>
 
@@ -73,10 +73,10 @@
 
                 <!-- Badge de estado -->
                 <div class="absolute top-2 right-2">
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                            {{ $mascota->estado == 'disponible' ? 'bg-green-500 text-white' : 
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full
+                            {{ $mascota->estado == 'disponible' ? 'bg-green-500 text-white' :
                                ($mascota->estado == 'en_proceso' ? 'bg-yellow-500 text-white' : 'bg-gray-500 text-white') }}">
-                        {{ $mascota->estado == 'disponible' ? 'Disponible' : 
+                        {{ $mascota->estado == 'disponible' ? 'Disponible' :
                                ($mascota->estado == 'en_proceso' ? 'En proceso' : 'Adoptado') }}
                     </span>
                 </div>
@@ -108,7 +108,7 @@
                 <p class="text-gray-600 text-sm mb-4 line-clamp-2">
                     {{ Str::limit($mascota->historia, 100) }}
                 </p>
-                
+
                 @auth
                 @if(auth()->user()->role === 'usuario' && $mascota->estado === 'disponible')
                 <a href="{{ route('usuario.postular.create', $mascota) }}"

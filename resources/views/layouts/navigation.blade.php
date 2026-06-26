@@ -138,6 +138,17 @@
                     </form>
                 </div>
             </div>
+        @else
+            <div class="pt-4 pb-3 border-t border-gray-200">
+                <div class="space-y-1">
+                    <x-responsive-nav-link :href="route('login')">
+                        {{ __('Iniciar Sesión') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('register')">
+                        {{ __('Registrarse') }}
+                    </x-responsive-nav-link>
+                </div>
+            </div>
         @endauth
     </div>
 </nav>
