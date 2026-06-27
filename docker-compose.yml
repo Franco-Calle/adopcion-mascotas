@@ -1,5 +1,5 @@
 services:
-  # 1. 🗄️ El contenedor de la Base de Datos (MariaDB)
+  # 1. Base de Datos (MariaDB)
   db:
     image: mariadb:10.11
     container_name: db_adopcion_container
@@ -9,8 +9,10 @@ services:
       MARIADB_DATABASE: db_adopcion
       MARIADB_USER: franco
       MARIADB_PASSWORD: password
+    # SEGURIDAD: En producción considera eliminar este mapeo de puertos
+    # para que la BD no sea accesible desde internet.
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
@@ -20,7 +22,7 @@ services:
       retries: 10
       start_period: 15s
 
-  # 2. 🐘 El contenedor del Backend (PHP 8.2 + Laravel)
+  # 2. Backend PHP (PHP-FPM — reemplaza php artisan serve)
   app:
     image: chialab/php:8.2-fpm
     container_name: laravel_adopcion_app
@@ -28,6 +30,7 @@ services:
     working_dir: /var/www
     volumes:
       - .:/var/www
+<<<<<<< Updated upstream
     ports:
       - "8000:8000"
     # Instala dependencias PHP si no existen, genera la key si falta, luego levanta el servidor
@@ -35,18 +38,42 @@ services:
       sh -c "composer install --no-interaction --prefer-dist
       && php artisan key:generate --ansi --no-interaction
       && php artisan serve --host=0.0.0.0 --port=8000"
+=======
+    # Puerto 9000 interno — Nginx hace el proxy, no se expone al exterior
+    command: >
+      sh -c "composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+      && php artisan migrate --force
+      && php artisan config:cache
+      && php artisan route:cache
+      && php artisan view:cache
+      && php-fpm"
+>>>>>>> Stashed changes
     depends_on:
       db:
         condition: service_healthy
 
-  # 3. ⚡ El contenedor del Frontend (Node.js + Vite + Tailwind)
-  vite:
+  # 3. Servidor web (Nginx como proxy inverso frente a PHP-FPM)
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_adopcion
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+
+  # 4. Compilación de assets (se ejecuta una vez y sale — no es un servidor)
+  node_build:
     image: node:20-alpine
-    container_name: vite_adopcion_assets
+    container_name: vite_adopcion_build
     working_dir: /app
     volumes:
       - .:/app
       - vite_node_modules:/app/node_modules
+<<<<<<< Updated upstream
     ports:
       - "5173:5173"
     # Instala dependencias Node si no existen, luego levanta Vite
@@ -55,6 +82,10 @@ services:
     stdin_open: true
     depends_on:
       - app
+=======
+    command: sh -c "npm ci && npm run build"
+    restart: "no"
+>>>>>>> Stashed changes
 
 volumes:
   db_data:

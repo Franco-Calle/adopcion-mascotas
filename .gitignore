@@ -24,5 +24,9 @@ Homestead.yaml
 Thumbs.db
 CLAUDE.md
 db_adopcion.sql
+<<<<<<< Updated upstream
 
 /testsprite_tests
+=======
+testsprite_tests/
+>>>>>>> Stashed changes
